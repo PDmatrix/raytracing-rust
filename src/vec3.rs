@@ -183,8 +183,8 @@ impl DivAssign<f32> for Vec3 {
         let k = 1.0 / t;
 
         self.e[0] *= k;
-        self.e[1] /= k;
-        self.e[2] /= k;
+        self.e[1] *= k;
+        self.e[2] *= k;
     }
 }
 
