@@ -118,6 +118,14 @@ impl Mul for Vec3 {
     }
 }
 
+impl Mul<Vec3> for f32 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Vec3) -> Self::Output {
+        rhs * self
+    }
+}
+
 impl MulAssign for Vec3 {
     fn mul_assign(&mut self, rhs: Self) {
         self.e[0] *= rhs.e[0];
@@ -155,6 +163,14 @@ impl Div for Vec3 {
         let f2 = self.e[2] / rhs.e[2];
 
         Self::new(f0, f1, f2)
+    }
+}
+
+impl Div<Vec3> for f32 {
+    type Output = Vec3;
+
+    fn div(self, rhs: Vec3) -> Self::Output {
+        self * rhs
     }
 }
 
