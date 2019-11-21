@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::ops::*;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec3 {
@@ -35,7 +35,7 @@ impl Vec3 {
     }
 
     pub fn length(&self) -> f32 {
-        (self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2]).sqrt()
+        self.squared_length().sqrt()
     }
 
     pub fn squared_length(&self) -> f32 {
@@ -49,21 +49,21 @@ impl Vec3 {
         self.e[2] *= k;
     }
 
-    pub fn dot(v1: &Self, v2: &Self) -> f32 {
-        v1.e[0] * v2.e[0] + v1.e[1] * v2.e[1] + v1.e[2] * v2.e[2]
-    }
-
-    pub fn cross(v1: &Self, v2: &Self) -> Self {
-        let f0 = v1.e[1] * v2.e[2] - v1.e[2] * v2.e[1];
-        let f1 = v1.e[2] * v2.e[0] - v1.e[0] * v2.e[2];
-        let f2 = v1.e[0] * v2.e[1] - v1.e[1] * v2.e[0];
-
-        Self::new(f0, f1, f2)
-    }
-
     pub fn unit_vector(v: &Self) -> Self {
         *v / v.length()
     }
+}
+
+pub fn dot(v1: &Vec3, v2: &Vec3) -> f32 {
+    v1.e[0] * v2.e[0] + v1.e[1] * v2.e[1] + v1.e[2] * v2.e[2]
+}
+
+pub fn cross(v1: &Vec3, v2: &Vec3) -> Vec3 {
+    let f0 = v1.e[1] * v2.e[2] - v1.e[2] * v2.e[1];
+    let f1 = v1.e[2] * v2.e[0] - v1.e[0] * v2.e[2];
+    let f2 = v1.e[0] * v2.e[1] - v1.e[1] * v2.e[0];
+
+    Vec3::new(f0, f1, f2)
 }
 
 impl Add for Vec3 {
@@ -170,7 +170,7 @@ impl Div<Vec3> for f32 {
     type Output = Vec3;
 
     fn div(self, rhs: Vec3) -> Self::Output {
-        self * rhs
+        rhs / self
     }
 }
 
