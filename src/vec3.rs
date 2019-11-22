@@ -48,10 +48,10 @@ impl Vec3 {
         self.e[1] *= k;
         self.e[2] *= k;
     }
+}
 
-    pub fn unit_vector(v: &Self) -> Self {
-        *v / v.length()
-    }
+pub fn unit_vector(v: &Vec3) -> Vec3 {
+    *v / v.length()
 }
 
 pub fn dot(v1: &Vec3, v2: &Vec3) -> f32 {

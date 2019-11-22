@@ -18,7 +18,7 @@ impl Ray {
         self.b
     }
 
-    pub fn point_on_parameter(&self, t: f32) -> Vec3 {
+    pub fn point_at_parameter(&self, t: f32) -> Vec3 {
         self.a + self.b * t
     }
 }
