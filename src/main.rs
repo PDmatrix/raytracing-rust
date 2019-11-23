@@ -16,17 +16,25 @@ mod vec3;
 fn color<T: Hittable>(r: &Ray, world: &T) -> Vec3 {
     let mut rec: HitRecord = Default::default();
 
-    if world.hit(&r, 0.0, std::f32::MAX, &mut rec) {
-        0.5 * Vec3::new(
-            rec.normal.x() + 1.0,
-            rec.normal.y() + 1.0,
-            rec.normal.z() + 1.0,
-        )
+    if world.hit(&r, 0.001, std::f32::MAX, &mut rec) {
+        let target = rec.p + rec.normal + random_in_unit_sphere();
+        0.5 * color(&Ray::new(&rec.p, &(target - rec.p)), world)
     } else {
         let unit_direction = unit_vector(&r.direction());
         let t = 0.5 * (unit_direction.y() + 1.0);
         (1.0 - t) * Vec3::new(1.0, 1.0, 1.0) + t * Vec3::new(0.5, 0.7, 1.0)
     }
+}
+
+fn random_in_unit_sphere() -> Vec3 {
+    let mut p: Vec3;
+    loop {
+        p = 2.0 * Vec3::new(rnd(), rnd(), rnd()) - Vec3::new(1.0, 1.0, 1.0);
+        if p.squared_length() < 1.0 {
+            break;
+        }
+    }
+    p
 }
 
 fn rnd() -> f32 {
@@ -55,6 +63,7 @@ fn main() {
                 col += color(&r, &world);
             }
             col /= ns as f32;
+            col = Vec3::new(col[0].sqrt(), col[1].sqrt(), col[2].sqrt());
 
             let ir = (255.99 * col[0]) as i32;
             let ig = (255.99 * col[1]) as i32;
