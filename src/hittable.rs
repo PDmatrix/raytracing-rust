@@ -1,11 +1,13 @@
+use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{dot, Vec3};
 
 #[derive(Copy, Clone)]
-pub struct HitRecord {
+pub struct HitRecord<'a> {
     pub t: f32,
     pub p: Vec3,
     pub normal: Vec3,
+    pub material: &'a dyn Material,
 }
 
 pub trait Hittable {
@@ -37,11 +39,16 @@ impl Hittable for Vec<Box<dyn Hittable>> {
 pub struct Sphere {
     center: Vec3,
     radius: f32,
+    material: Box<dyn Material>,
 }
 
 impl Sphere {
-    pub(crate) fn new(center: Vec3, radius: f32) -> Sphere {
-        Sphere { radius, center }
+    pub(crate) fn new(center: Vec3, radius: f32, material: Box<dyn Material>) -> Sphere {
+        Sphere {
+            radius,
+            center,
+            material,
+        }
     }
 }
 
@@ -56,11 +63,11 @@ impl Hittable for Sphere {
         if discriminant > 0. {
             let t = (-b - discriminant.sqrt()) / a;
             if t < t_max && t > t_min {
-                return get_hit_record(self, r, t)
+                return get_hit_record(self, r, t);
             }
             let t = (-b + discriminant.sqrt()) / a;
             if t < t_max && t > t_min {
-                return get_hit_record(self, r, t)
+                return get_hit_record(self, r, t);
             }
         }
 
@@ -68,12 +75,13 @@ impl Hittable for Sphere {
     }
 }
 
-fn get_hit_record(sphere: &Sphere, r: &Ray, t: f32) -> Option<HitRecord> {
+fn get_hit_record<'a>(sphere: &'a Sphere, r: &Ray, t: f32) -> Option<HitRecord<'a>> {
     let p = r.point_at_parameter(t);
 
     return Some(HitRecord {
         t,
         p,
         normal: (p - sphere.center) / sphere.radius,
+        material: &*sphere.material,
     });
 }
