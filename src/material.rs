@@ -96,9 +96,8 @@ impl Material for Dielectric {
 }
 
 fn random_in_unit_sphere() -> Vec3 {
-    let mut p: Vec3;
     loop {
-        p =
+        let p =
             2.0 * Vec3::new(
                 rand::random::<f32>(),
                 rand::random::<f32>(),

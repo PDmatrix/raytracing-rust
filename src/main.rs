@@ -38,7 +38,7 @@ fn main() {
     let ny = 100;
     let ns = 100;
     print!("P3\n{} {}\n255\n", nx, ny);
-
+    let r = (std::f32::consts::PI / 4.0).cos();
     let spheres = vec![
         Sphere::new(
             Vec3::new(0.0, 0.0, -1.0),
@@ -74,12 +74,20 @@ fn main() {
         .map(|s| Box::new(s) as Box<dyn Hittable>)
         .collect();
 
-    let cam = Camera {
-        lower_left_corner: Vec3::new(-2.0, -1.0, -1.0),
-        horizontal: Vec3::new(4.0, 0.0, 0.0),
-        vertical: Vec3::new(0.0, 2.0, 0.0),
-        origin: Vec3::new(0.0, 0.0, 0.0),
-    };
+    let look_from = Vec3::new(3.0, 3.0, 2.0);
+    let look_at = Vec3::new(0.0, 0.0, -1.0);
+    let dist_to_focus = (look_from - look_at).length();
+    let aperture = 2.0;
+
+    let cam = Camera::new(
+        look_from,
+        look_at,
+        Vec3::new(0.0, 1.0, 0.0),
+        20.0,
+        (nx as f32) / (ny as f32),
+        aperture,
+        dist_to_focus,
+    );
     for j in (0..ny).rev() {
         for i in 0..nx {
             let mut col = Vec3::new(0.0, 0.0, 0.0);
@@ -100,3 +108,5 @@ fn main() {
         }
     }
 }
+
+
