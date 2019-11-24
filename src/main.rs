@@ -49,7 +49,12 @@ fn main() {
         .map(|s| Box::new(s) as Box<dyn Hittable>)
         .collect();
 
-    let cam = Camera::new();
+    let cam = Camera {
+        lower_left_corner: Vec3::new(-2.0, -1.0, -1.0),
+        horizontal: Vec3::new(4.0, 0.0, 0.0),
+        vertical: Vec3::new(0.0, 2.0, 0.0),
+        origin: Vec3::new(0.0, 0.0, 0.0),
+    };
     for j in (0..ny).rev() {
         for i in 0..nx {
             let mut col = Vec3::new(0.0, 0.0, 0.0);
