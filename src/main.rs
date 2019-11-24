@@ -1,6 +1,6 @@
 use crate::camera::Camera;
 use crate::hittable::{Hittable, Sphere};
-use crate::material::{Lambertian, Metal};
+use crate::material::{Dielectric, Lambertian, Metal};
 use crate::ray::Ray;
 use crate::vec3::{unit_vector, Vec3};
 
@@ -16,16 +16,14 @@ fn color(r: &Ray, world: &dyn Hittable, depth: i32) -> Vec3 {
     match hit {
         Some(hit_record) => {
             if depth < 50 {
-                match hit_record.material.scatter(r, &hit_record) {
-                    Some(scatter) => {
-                        if let Some(bounce) = scatter.scattered {
-                            return scatter.attenuation * color(&bounce, world, depth + 1);
-                        }
+                if let Some(scatter) = hit_record.material.scatter(r, &hit_record) {
+                    if let Some(bounce) = scatter.scattered {
+                        return scatter.attenuation * color(&bounce, world, depth + 1);
                     }
-                    None => {}
                 }
             }
-            return Vec3::new(0., 0., 0.);
+
+            Vec3::new(0., 0., 0.)
         }
         None => {
             let unit_direction = unit_vector(&r.direction());
@@ -46,14 +44,14 @@ fn main() {
             Vec3::new(0.0, 0.0, -1.0),
             0.5,
             Box::new(Lambertian {
-                albedo: Vec3::new(0.8, 0.3, 0.3),
+                albedo: Vec3::new(0.1, 0.2, 0.5),
             }),
         ),
         Sphere::new(
             Vec3::new(0.0, -100.5, -1.0),
             100.0,
             Box::new(Lambertian {
-                albedo: Vec3::new(0.8, 0.8, 0.8),
+                albedo: Vec3::new(0.8, 0.8, 0.0),
             }),
         ),
         Sphere::new(
@@ -61,16 +59,14 @@ fn main() {
             0.5,
             Box::new(Metal {
                 albedo: Vec3::new(0.8, 0.6, 0.2),
-                fuzz: 1.0,
-            }),
-        ),
-        Sphere::new(
-            Vec3::new(-1., 0., -1.),
-            0.5,
-            Box::new(Metal {
-                albedo: Vec3::new(0.8, 0.8, 0.8),
                 fuzz: 0.3,
             }),
+        ),
+        Sphere::new(Vec3::new(-1., 0., -1.), 0.5, Box::new(Dielectric::new(1.5))),
+        Sphere::new(
+            Vec3::new(-1., 0., -1.),
+            -0.45,
+            Box::new(Dielectric::new(1.5)),
         ),
     ];
     let world: Vec<Box<dyn Hittable>> = spheres
@@ -87,7 +83,7 @@ fn main() {
     for j in (0..ny).rev() {
         for i in 0..nx {
             let mut col = Vec3::new(0.0, 0.0, 0.0);
-            for s in 0..ns {
+            for _ in 0..ns {
                 let u = (i as f32 + rand::random::<f32>()) / nx as f32;
                 let v = (j as f32 + rand::random::<f32>()) / ny as f32;
                 let r = cam.get_ray(u, v);

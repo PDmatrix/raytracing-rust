@@ -15,12 +15,11 @@ pub trait Hittable {
 }
 
 impl Hittable for Vec<Box<dyn Hittable>> {
-    fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let mut hit: Option<HitRecord> = None;
-        let mut closest_so_far = t_max;
 
         for hittable in self {
-            if let Some(candidate_hit) = hittable.hit(r, t_min, t_max) {
+            if let Some(candidate_hit) = hittable.hit(ray, t_min, t_max) {
                 match hit {
                     None => hit = Some(candidate_hit),
                     Some(prev) => {
@@ -53,21 +52,21 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
-        let oc = r.origin() - self.center;
-        let a = dot(r.direction(), r.direction());
-        let b = dot(oc, r.direction());
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+        let oc = ray.origin() - self.center;
+        let a = dot(ray.direction(), ray.direction());
+        let b = dot(oc, ray.direction());
         let c = dot(oc, oc) - self.radius * self.radius;
         let discriminant = b * b - a * c;
 
         if discriminant > 0. {
             let t = (-b - discriminant.sqrt()) / a;
             if t < t_max && t > t_min {
-                return get_hit_record(self, r, t);
+                return get_hit_record(self, ray, t);
             }
             let t = (-b + discriminant.sqrt()) / a;
             if t < t_max && t > t_min {
-                return get_hit_record(self, r, t);
+                return get_hit_record(self, ray, t);
             }
         }
 
@@ -78,10 +77,10 @@ impl Hittable for Sphere {
 fn get_hit_record<'a>(sphere: &'a Sphere, r: &Ray, t: f32) -> Option<HitRecord<'a>> {
     let p = r.point_at_parameter(t);
 
-    return Some(HitRecord {
+    Some(HitRecord {
         t,
         p,
         normal: (p - sphere.center) / sphere.radius,
         material: &*sphere.material,
-    });
+    })
 }
