@@ -18,7 +18,9 @@ fn color(r: &Ray, world: &dyn Hittable, depth: i32) -> Vec3 {
             if depth < 50 {
                 match hit_record.material.scatter(r, &hit_record) {
                     Some(scatter) => {
-                        return scatter.attenuation * color(&scatter.scattered, world, depth + 1);
+                        if let Some(bounce) = scatter.scattered {
+                            return scatter.attenuation * color(&bounce, world, depth + 1);
+                        }
                     }
                     None => {}
                 }

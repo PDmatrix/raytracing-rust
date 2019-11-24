@@ -4,7 +4,7 @@ use crate::vec3::{dot, unit_vector, Vec3};
 
 pub struct Scatter {
     pub attenuation: Vec3,
-    pub scattered: Ray,
+    pub scattered: Option<Ray>,
 }
 
 pub trait Material {
@@ -19,7 +19,7 @@ impl Material for Lambertian {
     fn scatter<'a>(&self, r_in: &Ray, hit_record: &HitRecord<'a>) -> Option<Scatter> {
         let target = hit_record.p + hit_record.normal + random_in_unit_sphere();
         Some(Scatter {
-            scattered: Ray::new(hit_record.p, target - hit_record.p),
+            scattered: Some(Ray::new(hit_record.p, target - hit_record.p)),
             attenuation: self.albedo,
         })
     }
@@ -32,15 +32,15 @@ pub struct Metal {
 impl Material for Metal {
     fn scatter<'a>(&self, r_in: &Ray, hit_record: &HitRecord<'a>) -> Option<Scatter> {
         let reflected = reflect(&unit_vector(&r_in.direction()), &hit_record.normal);
-        let scatter = Scatter {
-            scattered: Ray::new(hit_record.p, reflected),
+        let scattered = Ray::new(hit_record.p, reflected);
+        Some(Scatter {
             attenuation: self.albedo,
-        };
-        if dot(scatter.scattered.direction(), hit_record.normal) > 0. {
-            Some(scatter)
-        } else {
-            None
-        }
+            scattered: if dot(scattered.direction(), hit_record.normal) > 0. {
+                Some(scattered)
+            } else {
+                None
+            },
+        })
     }
 }
 
