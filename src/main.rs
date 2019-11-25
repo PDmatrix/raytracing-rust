@@ -2,6 +2,9 @@ use crate::camera::Camera;
 use crate::hittable::{Hittable, Sphere};
 use crate::material::{Dielectric, Lambertian, Material, Metal};
 use crate::vec3::{Vec3};
+use std::io::BufWriter;
+use std::io;
+use std::fs::File;
 
 mod camera;
 mod hittable;
@@ -14,7 +17,6 @@ fn main() {
     let nx = 300;
     let ny = 300;
     let ns = 5;
-    print!("P3\n{} {}\n255\n", nx, ny);
     let world: Vec<Box<dyn Hittable>> = random_scene()
         .into_iter()
         .map(|s| Box::new(s) as Box<dyn Hittable>)
@@ -35,7 +37,17 @@ fn main() {
         dist_to_focus,
     );
 
-    renderer::render(&world, &cam, nx, ny, ns);
+    let pixels = renderer::render(&world, &cam, nx, ny, ns);
+
+    let ref mut w = BufWriter::new(File::create("a.png").unwrap());
+
+    let mut encoder = png::Encoder::new(w, nx as u32, ny as u32);
+    encoder.set_color(png::ColorType::RGB);
+    encoder.set_depth(png::BitDepth::Eight);
+
+    let mut writer = encoder.write_header().unwrap();
+
+    writer.write_image_data(&pixels).unwrap();
 }
 
 fn random_scene() -> Vec<Sphere> {

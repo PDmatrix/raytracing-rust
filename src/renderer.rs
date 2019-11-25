@@ -3,7 +3,14 @@ use crate::hittable::Hittable;
 use crate::ray::Ray;
 use crate::vec3::{unit_vector, Vec3};
 
-pub(crate) fn render(world: &dyn Hittable, camera: &Camera, nx: i32, ny: i32, ns: i32) {
+pub(crate) fn render(
+    world: &dyn Hittable,
+    camera: &Camera,
+    nx: usize,
+    ny: usize,
+    ns: usize,
+) -> Vec<u8> {
+    let mut pixels: Vec<u8> = Vec::with_capacity(nx * ny * 3);
     for j in (0..ny).rev() {
         for i in 0..nx {
             let mut col = Vec3::new(0.0, 0.0, 0.0);
@@ -16,13 +23,13 @@ pub(crate) fn render(world: &dyn Hittable, camera: &Camera, nx: i32, ny: i32, ns
             col /= ns as f32;
             col = Vec3::new(col[0].sqrt(), col[1].sqrt(), col[2].sqrt());
 
-            let ir = (255.99 * col[0]) as i32;
-            let ig = (255.99 * col[1]) as i32;
-            let ib = (255.99 * col[2]) as i32;
-
-            println!("{} {} {}", ir, ig, ib);
+            pixels.push((255.99 * col[0]) as u8);
+            pixels.push((255.99 * col[1]) as u8);
+            pixels.push((255.99 * col[2]) as u8);
         }
     }
+
+    pixels
 }
 
 fn color(r: &Ray, world: &dyn Hittable, depth: i32) -> Vec3 {
