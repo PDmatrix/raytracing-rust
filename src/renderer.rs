@@ -10,24 +10,24 @@ pub(crate) fn render(
     ny: usize,
     ns: usize,
 ) -> Vec<u8> {
-    let mut pixels: Vec<u8> = Vec::with_capacity(nx * ny * 3);
-    for j in (0..ny).rev() {
-        for i in 0..nx {
-            let mut col = Vec3::new(0.0, 0.0, 0.0);
-            for _ in 0..ns {
-                let u = (i as f32 + rand::random::<f32>()) / nx as f32;
-                let v = (j as f32 + rand::random::<f32>()) / ny as f32;
-                let r = camera.get_ray(u, v);
-                col += color(&r, world, 0);
-            }
-            col /= ns as f32;
-            col = Vec3::new(col[0].sqrt(), col[1].sqrt(), col[2].sqrt());
+    let pixels: Vec<u8> = (0..ny)
+        .rev()
+        .flat_map(|j| {
+            (0..nx).flat_map(move |i| {
+                let mut col = Vec3::new(0.0, 0.0, 0.0);
+                for _ in 0..ns {
+                    let u = (i as f32 + rand::random::<f32>()) / nx as f32;
+                    let v = (j as f32 + rand::random::<f32>()) / ny as f32;
+                    let r = camera.get_ray(u, v);
+                    col += color(&r, world, 0);
+                }
+                col /= ns as f32;
+                col = Vec3::new(col[0].sqrt(), col[1].sqrt(), col[2].sqrt());
 
-            pixels.push((255.99 * col[0]) as u8);
-            pixels.push((255.99 * col[1]) as u8);
-            pixels.push((255.99 * col[2]) as u8);
-        }
-    }
+                (0..3).map(move |k| ((255.99 * col[k]) as u8))
+            })
+        })
+        .collect();
 
     pixels
 }

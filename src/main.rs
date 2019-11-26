@@ -3,7 +3,6 @@ use crate::hittable::{Hittable, Sphere};
 use crate::material::{Dielectric, Lambertian, Material, Metal};
 use crate::vec3::{Vec3};
 use std::io::BufWriter;
-use std::io;
 use std::fs::File;
 
 mod camera;
@@ -16,7 +15,7 @@ mod vec3;
 fn main() {
     let nx = 300;
     let ny = 300;
-    let ns = 5;
+    let ns = 10;
     let world: Vec<Box<dyn Hittable>> = random_scene()
         .into_iter()
         .map(|s| Box::new(s) as Box<dyn Hittable>)
@@ -39,7 +38,7 @@ fn main() {
 
     let pixels = renderer::render(&world, &cam, nx, ny, ns);
 
-    let ref mut w = BufWriter::new(File::create("a.png").unwrap());
+    let w = BufWriter::new(File::create("a.png").unwrap());
 
     let mut encoder = png::Encoder::new(w, nx as u32, ny as u32);
     encoder.set_color(png::ColorType::RGB);
