@@ -1,6 +1,7 @@
 use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{dot, Vec3};
+use std::sync::Arc;
 
 #[derive(Copy, Clone)]
 pub struct HitRecord<'a> {
@@ -10,7 +11,7 @@ pub struct HitRecord<'a> {
     pub material: &'a dyn Material,
 }
 
-pub trait Hittable {
+pub trait Hittable: Sync {
     fn hit(&self, r: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
 }
 
@@ -38,11 +39,11 @@ impl Hittable for Vec<Box<dyn Hittable>> {
 pub struct Sphere {
     center: Vec3,
     radius: f32,
-    material: Box<dyn Material>,
+    material: Arc<dyn Material>,
 }
 
 impl Sphere {
-    pub(crate) fn new(center: Vec3, radius: f32, material: Box<dyn Material>) -> Sphere {
+    pub(crate) fn new(center: Vec3, radius: f32, material: Arc<dyn Material>) -> Sphere {
         Sphere {
             radius,
             center,

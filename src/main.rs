@@ -4,6 +4,7 @@ use crate::material::{Dielectric, Lambertian, Material, Metal};
 use crate::vec3::{Vec3};
 use std::io::BufWriter;
 use std::fs::File;
+use std::sync::Arc;
 
 mod camera;
 mod hittable;
@@ -13,9 +14,9 @@ mod renderer;
 mod vec3;
 
 fn main() {
-    let nx = 300;
-    let ny = 300;
-    let ns = 10;
+    let nx = 1280;
+    let ny = 800;
+    let ns = 300;
     let world: Vec<Box<dyn Hittable>> = random_scene()
         .into_iter()
         .map(|s| Box::new(s) as Box<dyn Hittable>)
@@ -54,26 +55,26 @@ fn random_scene() -> Vec<Sphere> {
         Sphere::new(
             Vec3::new(0.0, -1000.0, 0.0),
             1000.0,
-            Box::new(Lambertian {
+            Arc::new(Lambertian {
                 albedo: Vec3::new(0.5, 0.5, 0.5),
             }),
         ),
         Sphere::new(
             Vec3::new(0.0, 1.0, 0.0),
             1.0,
-            Box::new(Dielectric::new(1.5)),
+            Arc::new(Dielectric::new(1.5)),
         ),
         Sphere::new(
             Vec3::new(-4.0, 1.0, 0.0),
             1.0,
-            Box::new(Lambertian {
+            Arc::new(Lambertian {
                 albedo: Vec3::new(0.4, 0.2, 0.1),
             }),
         ),
         Sphere::new(
             Vec3::new(4.0, 1.0, 0.0),
             1.0,
-            Box::new(Metal {
+            Arc::new(Metal {
                 albedo: Vec3::new(0.7, 0.6, 0.5),
                 fuzz: 0.0,
             }),
@@ -92,9 +93,9 @@ fn random_scene() -> Vec<Sphere> {
                 continue;
             }
 
-            let material: Box<dyn Material>;
+            let material: Arc<dyn Material>;
             if choose_mat < 0.8 {
-                material = Box::new(Lambertian {
+                material = Arc::new(Lambertian {
                     albedo: Vec3::new(
                         rand::random::<f32>() * rand::random::<f32>(),
                         rand::random::<f32>() * rand::random::<f32>(),
@@ -102,7 +103,7 @@ fn random_scene() -> Vec<Sphere> {
                     ),
                 });
             } else if choose_mat < 0.9 {
-                material = Box::new(Metal {
+                material = Arc::new(Metal {
                     albedo: Vec3::new(
                         0.5 * (1.0 + rand::random::<f32>()),
                         0.5 * (1.0 + rand::random::<f32>()),
@@ -111,7 +112,7 @@ fn random_scene() -> Vec<Sphere> {
                     fuzz: 0.5 * rand::random::<f32>(),
                 });
             } else {
-                material = Box::new(Dielectric::new(1.5));
+                material = Arc::new(Dielectric::new(1.5));
             }
 
             spheres.push(Sphere::new(center, 0.2, material))

@@ -2,6 +2,7 @@ use crate::camera::Camera;
 use crate::hittable::Hittable;
 use crate::ray::Ray;
 use crate::vec3::{unit_vector, Vec3};
+use rayon::prelude::*;
 
 pub(crate) fn render(
     world: &dyn Hittable,
@@ -10,10 +11,11 @@ pub(crate) fn render(
     ny: usize,
     ns: usize,
 ) -> Vec<u8> {
-    let pixels: Vec<u8> = (0..ny)
+    let pixels = (0..ny)
+        .into_par_iter()
         .rev()
         .flat_map(|j| {
-            (0..nx).flat_map(move |i| {
+            (0..nx).into_par_iter().flat_map(move |i| {
                 let mut col = Vec3::new(0.0, 0.0, 0.0);
                 for _ in 0..ns {
                     let u = (i as f32 + rand::random::<f32>()) / nx as f32;
@@ -24,7 +26,7 @@ pub(crate) fn render(
                 col /= ns as f32;
                 col = Vec3::new(col[0].sqrt(), col[1].sqrt(), col[2].sqrt());
 
-                (0..3).map(move |k| ((255.99 * col[k]) as u8))
+                (0..3).into_par_iter().map(move |k| (255.99 * col[k as usize]).min(255.0) as u8)
             })
         })
         .collect();

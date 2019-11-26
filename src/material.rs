@@ -7,7 +7,7 @@ pub struct Scatter {
     pub scattered: Option<Ray>,
 }
 
-pub trait Material {
+pub trait Material: Sync + Send {
     fn scatter(&self, r_in: &Ray, hit_record: &HitRecord) -> Option<Scatter>;
 }
 
